@@ -705,6 +705,82 @@
                 }, { once: true });
             }
         });
+        // Diagnostics: quickly check that important assets are reachable (helpful for GitHub Pages path issues)
+        (function checkAssets() {
+            const toCheck = [
+                'assets/syntrexlabs.png',
+                'fonts/kewlfont.ttf',
+                'fonts/kewlfont.woff2'
+            ];
+
+            async function headCheck(url) {
+                try {
+                    const res = await fetch(url, { method: 'GET' });
+                    return { url, ok: res.ok, status: res.status };
+                } catch (err) {
+                    return { url, ok: false, status: null, error: err.message };
+                }
+            }
+
+            Promise.all(toCheck.map(headCheck)).then(results => {
+                const failures = results.filter(r => !r.ok);
+                if (failures.length) {
+                    console.warn('Asset checks failed for:', failures);
+                    // Show subtle warning UI so it's obvious in-page
+                    const warn = document.createElement('div');
+                    warn.style.position = 'fixed';
+                    warn.style.left = '12px';
+                    warn.style.bottom = '12px';
+                    warn.style.padding = '10px 12px';
+                    warn.style.background = 'rgba(255, 80, 80, 0.92)';
+                    warn.style.color = '#fff';
+                    warn.style.borderRadius = '8px';
+                    warn.style.zIndex = 999999;
+                    warn.style.fontSize = '0.85rem';
+                    warn.style.boxShadow = '0 6px 20px rgba(0,0,0,0.35)';
+                    warn.textContent = `Asset load issue: ${failures.map(f=>f.url).join(', ')}`;
+                    document.body.appendChild(warn);
+                }
+            });
+        })();
+
+        // Dynamic font path resolution for common GitHub Pages scenarios
+        (function ensureFontAvailable() {
+            const fontName = 'kewlfont';
+            const candidates = [
+                `fonts/${fontName}.woff2`,
+                `fonts/${fontName}.ttf`,
+                `assets/fonts/${fontName}.woff2`,
+                `assets/fonts/${fontName}.ttf`,
+                `./fonts/${fontName}.woff2`,
+                `./assets/fonts/${fontName}.woff2`,
+            ];
+
+            async function testAndApply(url) {
+                try {
+                    const r = await fetch(url, { method: 'HEAD' });
+                    if (r.ok) {
+                        const style = document.createElement('style');
+                        style.textContent = `@font-face{font-family: 'KewlFont'; src: url('${url}') format('woff2'); font-weight:100 900; font-style:normal; font-display:swap;}`;
+                        document.head.appendChild(style);
+                        console.info('Applied KewlFont from', url);
+                        return true;
+                    }
+                } catch (e) {
+                    // ignore; try next candidate
+                }
+                return false;
+            }
+
+            (async function() {
+                for (const c of candidates) {
+                    const ok = await testAndApply(c);
+                    if (ok) return;
+                }
+                // If none applied, the existing CSS rule remains and may fail — logs help
+                console.warn('KewlFont not found at common paths; ensure fonts are committed and paths correct.');
+            })();
+        })();
     </script>
 </body>
 </html>
