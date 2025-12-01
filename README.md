@@ -63,5 +63,20 @@ Start-Process "http://localhost:8000"
 - Then open DevTools (F12) → Network to see resource requests and confirm 200 OK statuses.
 - If a resource returns 404, review the path being requested and ensure the file exists and has matching case.
 
+Tips to make deployment robust:
+- Commit `assets/` and `fonts/` to the branch your GitHub Pages site uses (e.g., `main` or `gh-pages`).
+- Add a `.nojekyll` file to your repo root to avoid Jekyll processing (useful when file or folder names are unusual).
+- Use relative asset paths in markup (no leading `/`) or set `<base href='/repo-name/'>` if you want absolute paths under a repo path.
+
 Server-side redirects (recommended):
 - For true canonicalization and SEO-friendly redirects, configure your webserver or hosting platform to redirect `/index.html` to `/` or `/home`. GitHub Pages supports `_redirects` on some platforms or requires setting up redirects via the hosting service; client-side redirects are a fallback.
+
+CDN fallback option:
+- This project includes a small JS fallback that will attempt to fetch missing assets from the jsDelivr CDN if you set the GitHub user/repo meta tags in `index.html` like:
+
+  <meta name="github-user" content="your-username">
+  <meta name="github-repo" content="your-repo">
+
+- jsDelivr URL format used: `https://cdn.jsdelivr.net/gh/<user>/<repo>@latest/<path>`
+- When the asset checker finds a failing asset it will try to fetch the file using the CDN. If the fetch succeeds, it will update the page to use the CDN-hosted file.
+- This is a convenience for preview or fallback, but it's best to ensure your repo structure and paths are correct and committed to the branch used by GitHub Pages.

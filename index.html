@@ -9,6 +9,11 @@
             If you prefer syntrex.xyz/home instead of root, set content="/home" below.
         -->
         <meta name="home-path" content="/">
+        <!-- If your site lives under a repo path, set the GitHub user/repo here for CDN fallbacks -->
+        <meta name="github-user" content="">
+        <meta name="github-repo" content="">
+        <!-- Recommend preloading local font to help early rendering -->
+        <link rel="preload" href="fonts/kewlfont.woff2" as="font" type="font/woff2" crossorigin>
         <!-- Favicon & Touch icon for devices -->
         <link rel="icon" href="assets/syntrexlabs.png" type="image/png">
         <link rel="apple-touch-icon" href="assets/syntrexlabs.png">
@@ -738,11 +743,68 @@
                     warn.style.zIndex = 999999;
                     warn.style.fontSize = '0.85rem';
                     warn.style.boxShadow = '0 6px 20px rgba(0,0,0,0.35)';
-                    warn.textContent = `Asset load issue: ${failures.map(f=>f.url).join(', ')}`;
+                    const urlList = failures.map(function(f) { return f.url; }).join(', ');
+                    warn.textContent = 'Asset load issue: ' + urlList;
                     document.body.appendChild(warn);
+                    // Try CDN fallback (if meta tags set) for missing assets
+                    // Determine GitHub user/repo automatically if not explicitly set
+                    const userMeta = document.querySelector('meta[name="github-user"]');
+                    const repoMeta = document.querySelector('meta[name="github-repo"]');
+                    let user = (userMeta && userMeta.content) || '';
+                    let repo = (repoMeta && repoMeta.content) || '';
+                    if (!user || !repo) {
+                        try {
+                            const host = window.location.hostname || '';
+                            if (host.endsWith('.github.io')) {
+                                // user is the subdomain: username.github.io
+                                const sub = host.split('.')[0];
+                                user = user || sub;
+                                const pathSegments = window.location.pathname.replace(new RegExp('(^\\/+|\\/+$)', 'g'), '').split('/');
+                                // use first path segment as repo name if present
+                                if (pathSegments.length && pathSegments[0]) repo = repo || pathSegments[0];
+                            }
+                        } catch (e) {
+                            // ignore detection errors
+                        }
+                    }
+                            if (user && repo) {
+                        console.info('Attempting CDN fallback for missing assets using', user, repo);
+                        failures.forEach(f => tryCdnFallback(user, repo, f.url));
+                    }
                 }
             });
         })();
+
+        async function tryCdnFallback(user, repo, path) {
+            // path is like 'assets/syntrexlabs.png' or 'fonts/kewlfont.ttf'
+            const cdn = `https://cdn.jsdelivr.net/gh/${user}/${repo}@latest/${path}`;
+            try {
+                const res = await fetch(cdn, { method: 'GET' });
+                if (res.ok) {
+                    console.info('CDN fallback OK for', path, '->', cdn);
+                    if (path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.svg')) {
+                        // update any existing <img> or <link rel=icon> references
+                        document.querySelectorAll(`img[src='${path}']`).forEach(img => img.src = cdn);
+                        document.querySelectorAll(`link[href='${path}']`).forEach(l => l.href = cdn);
+                        // Also update favicon link if present
+                        const favicon = document.querySelector("link[rel='icon']");
+                        if (favicon && favicon.getAttribute('href') === path) favicon.href = cdn;
+                    }
+                    if (path.match(/\.(ttf|woff2|woff)$/i)) {
+                        // Apply new @font-face with the discovered CDN URL
+                        const format = path.endsWith('.woff2') ? 'woff2' : (path.endsWith('.woff') ? 'woff' : 'truetype');
+                        const css = `@font-face{font-family:'KewlFont'; src: url('${cdn}') format('${format}'); font-display: swap;}`;
+                        const style = document.createElement('style');
+                        style.textContent = css;
+                        document.head.appendChild(style);
+                    }
+                } else {
+                    console.warn('CDN fallback returned', res.status, 'for', cdn);
+                }
+            } catch (err) {
+                console.warn('CDN fallback failed for', cdn, err);
+            }
+        }
 
         // Dynamic font path resolution for common GitHub Pages scenarios
         (function ensureFontAvailable() {
