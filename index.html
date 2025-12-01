@@ -15,8 +15,8 @@
         <!-- Recommend preloading local font to help early rendering -->
         <link rel="preload" href="fonts/kewlfont.woff2" as="font" type="font/woff2" crossorigin>
         <!-- Favicon & Touch icon for devices -->
-        <link rel="icon" href="assets/syntrexlabs.png" type="image/png">
-        <link rel="apple-touch-icon" href="assets/syntrexlabs.png">
+        <link rel="icon" href="Assets/SyntrexLabs.png" type="image/png">
+        <link rel="apple-touch-icon" href="Assets/SyntrexLabs.png">
     <title>Syntrex - Child Internet Safety Tools</title>
         <!-- NOTE: Using a local custom font instead of Google Fonts: kewlfont.ttf
             Place your real kewlfont.ttf into the `fonts/` folder. See fonts/README.md
@@ -645,7 +645,7 @@
     <div class="horizon"></div>
     <!-- Floating corner logo (use as site icon / link to home) -->
     <a class="corner-logo" href="/" aria-label="Go to Syntrex home">
-        <img src="assets/syntrexlabs.png" alt="Syntrex" />
+        <img src="Assets/SyntrexLabs.png" alt="Syntrex" />
     </a>
 
     <script>
@@ -713,7 +713,7 @@
         // Diagnostics: quickly check that important assets are reachable (helpful for GitHub Pages path issues)
         (function checkAssets() {
             const toCheck = [
-                'assets/syntrexlabs.png',
+                'Assets/SyntrexLabs.png',
                 'fonts/kewlfont.ttf',
                 'fonts/kewlfont.woff2'
             ];
@@ -776,7 +776,7 @@
         })();
 
         async function tryCdnFallback(user, repo, path) {
-            // path is like 'assets/syntrexlabs.png' or 'fonts/kewlfont.ttf'
+            // path is like 'Assets/SyntrexLabs.png' or 'fonts/kewlfont.ttf'
             const cdn = `https://cdn.jsdelivr.net/gh/${user}/${repo}@latest/${path}`;
             try {
                 const res = await fetch(cdn, { method: 'GET' });
@@ -846,3 +846,4 @@
     </script>
 </body>
 </html>
+
