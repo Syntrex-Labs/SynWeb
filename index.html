@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Syntrex - Tools for parents to keep children safe on the internet. Coming soon.">
+        <meta name="theme-color" content="#000000">
+        <!-- Optional: Set the canonical home path ("/" or "/home").
+            If you prefer syntrex.xyz/home instead of root, set content="/home" below.
+        -->
+        <meta name="home-path" content="/">
+        <!-- Favicon & Touch icon for devices -->
+        <link rel="icon" href="assets/syntrexlabs.png" type="image/png">
+        <link rel="apple-touch-icon" href="assets/syntrexlabs.png">
+    <title>Syntrex - Child Internet Safety Tools</title>
+        <!-- NOTE: Using a local custom font instead of Google Fonts: kewlfont.ttf
+            Place your real kewlfont.ttf into the `fonts/` folder. See fonts/README.md
+        -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Page loader overlay (full-screen) */
+        .loader-overlay {
+            position: fixed;
+            inset: 0; /* top:0; right:0; bottom:0; left:0 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.95);
+            z-index: 99999;
+            transition: opacity 0.45s ease, visibility 0.45s ease;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        .loader-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Loader content styles */
+        .loader-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 180px;
+            font-family: 'KewlFont', 'Outfit', system-ui, sans-serif;
+            font-size: 1.2em;
+            font-weight: 300;
+            color: white;
+            border-radius: 50%;
+            background-color: transparent;
+            user-select: none;
+            z-index: 100000;
+        }
+
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background-color: transparent;
+            animation: loader-rotate 2s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes loader-rotate {
+            0% {
+                transform: rotate(90deg);
+                box-shadow:
+                    0 10px 20px 0 #fff inset,
+                    0 20px 30px 0 #ad5fff inset,
+                    0 60px 60px 0 #471eec inset;
+            }
+            50% {
+                transform: rotate(270deg);
+                box-shadow:
+                    0 10px 20px 0 #fff inset,
+                    0 20px 10px 0 #d60a47 inset,
+                    0 40px 60px 0 #311e80 inset;
+            }
+            100% {
+                transform: rotate(450deg);
+                box-shadow:
+                    0 10px 20px 0 #fff inset,
+                    0 20px 30px 0 #ad5fff inset,
+                    0 60px 60px 0 #471eec inset;
+            }
+        }
+
+        .loader-letter {
+            display: inline-block;
+            opacity: 0.4;
+            transform: translateY(0);
+            animation: loader-letter-anim 2s infinite;
+            z-index: 1;
+            border-radius: 50ch;
+            border: none;
+            margin: 0 1px;
+        }
+
+        .loader-letter:nth-child(1) { animation-delay: 0s; }
+        .loader-letter:nth-child(2) { animation-delay: 0.1s; }
+        .loader-letter:nth-child(3) { animation-delay: 0.2s; }
+        .loader-letter:nth-child(4) { animation-delay: 0.3s; }
+        .loader-letter:nth-child(5) { animation-delay: 0.4s; }
+        .loader-letter:nth-child(6) { animation-delay: 0.5s; }
+        .loader-letter:nth-child(7) { animation-delay: 0.6s; }
+        .loader-letter:nth-child(8) { animation-delay: 0.7s; }
+        .loader-letter:nth-child(9) { animation-delay: 0.8s; }
+        .loader-letter:nth-child(10) { animation-delay: 0.9s; }
+
+        @keyframes loader-letter-anim {
+            0%, 100% { opacity: 0.4; transform: translateY(0); }
+            20% { opacity: 1; transform: scale(1.15); }
+            40% { opacity: 0.7; transform: translateY(0); }
+        }
+
+        /* Use the custom font as the default. Ensure kewlfont.ttf is in /fonts/ */
+        @font-face {
+            font-family: 'KewlFont';
+            src: url('fonts/kewlfont.woff2') format('woff2'),
+                 url('fonts/kewlfont.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            color: #ffffff;
+            font-family: 'KewlFont', 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+
+        /* Main hero section */
+        .hero {
+            text-align: center;
+            max-width: 800px;
+            z-index: 10;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            /* Reduce vertical spacing so it's closer to the header */
+            margin-bottom: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* Site photo / logo in the hero */
+        .site-photo {
+            display: block;
+            margin: 0 auto 0.75rem auto;
+            width: 160px;
+            max-width: 40vw;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+
+        /* Floating corner logo */
+        .corner-logo {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .corner-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .corner-logo:hover {
+            transform: scale(1.04);
+            opacity: 0.98;
+        }
+
+        @media (max-width: 600px) {
+            .corner-logo {
+                top: 10px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        .hero h1 {
+            font-family: 'KewlFont', 'Playfair Display', Georgia, 'Times New Roman', serif;
+            font-size: clamp(3.5rem, 12vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .hero h1 .italic {
+            font-style: italic;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: #888888;
+            font-weight: 300;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            letter-spacing: 0.2px;
+        }
+
+        /* Email form */
+        .email-form {
+            display: flex;
+            justify-content: center; /* center contents (button) */
+            align-items: center;
+            gap: 0.75rem;
+            width: auto;
+            max-width: 420px;
+            margin: 0 auto 1.5rem;
+            flex-direction: row;
+        }
+
+        /* input removed — keep the input styles for reusing if you add it back */
+        .email-form input { /* optional, used if you re-enable the email input */
+            flex: 1;
+            padding: 0.95rem 1.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'KewlFont', 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .email-form input::placeholder {
+            color: #666666;
+        }
+
+        .email-form input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .email-form button {
+            padding: 0.95rem 2rem;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-family: 'KewlFont', 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        /* Tooltip-styled submit button (replaces default 'Get Notified') */
+        .email-form .tooltip-container {
+            --background: #7579e7;
+            background: var(--background);
+            position: relative;
+            /* No pointer cursor because it's not clickable */
+            cursor: default;
+            /* Use a border to avoid subpixel anti-aliasing differences */
+            border: 1px solid var(--background);
+            background-clip: padding-box;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            /* allow the container to size to content and use padding for alignment */
+            width: auto;
+            padding: 0.7em 1.8em;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            border: none;
+            /* padding added above for proper sizing */
+            z-index: 1;
+        }
+
+        .email-form .tooltip-container:focus {
+            outline: 2px solid rgba(255,255,255,0.12);
+            outline-offset: 4px;
+        }
+
+        .tooltip-container .tooltip {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.3em 0.6em;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s;
+            background: var(--background);
+            border: 1px solid var(--background);
+            background-clip: padding-box;
+            border-radius: 5px;
+            width: 7em;
+            text-align: center;
+            color: #ffffff;
+            font-family: 'KewlFont', 'Outfit', sans-serif;
+            /* help with rendering and reduce anti-aliasing artifacts */
+            box-shadow: 0 1px 0 var(--background);
+            will-change: top, transform;
+            backface-visibility: hidden;
+        }
+
+        .tooltip-container .tooltip::before {
+            position: absolute;
+            content: "";
+            height: 0.6em;
+            width: 0.6em;
+            /* move arrow out slightly so it overlaps the container */
+            bottom: -4px; /* slightly less overlap for more natural join */
+            left: 50%;
+            transform: translate(-50%) rotate(45deg);
+            background: var(--background);
+            border: 1px solid var(--background);
+            /* hide anti-aliased edge */
+            box-shadow: 0 0 0 1px var(--background);
+        }
+
+        .tooltip-container:hover .tooltip {
+            /* move tooltip slightly more so the arrow overlaps the container (prevents gap) */
+            top: calc(-100% - 4px);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            animation: shake 500ms ease-in-out forwards;
+            /* Add inset shadow to tooltip to match container rendering on hover */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.18) inset;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(2deg); }
+            50% { transform: rotate(-3deg); }
+            70% { transform: rotate(3deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .tooltip-container .text {
+            position: relative;
+            padding: 0; /* use container padding to center content */
+            overflow: hidden;
+            display: block;
+            font-family: 'KewlFont', 'Outfit', sans-serif;
+            width: 100%;
+            text-align: center; /* center label */
+        }
+
+        .tooltip-container .text::before {
+            content: "(^_^)/";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: inherit;
+            background-color: var(--background);
+            transition: 0.3s;
+            color: #fff;
+            width: 100%;
+            text-align: center;
+        }
+
+        .tooltip-container:hover .text::before { top: 0; }
+
+        .email-form button:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Prevent accidental pointer-based interactions for the tooltip container */
+        .email-form .tooltip-container { pointer-events: auto; }
+
+        /* Override the general button hover for the tooltip button so it keeps its purple look */
+        .email-form .tooltip-container:hover {
+            background: var(--background);
+            transform: translateY(-2px);
+            /* keep the glow without switching to white */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.18) inset;
+            /* ensure no tiny gap shows - make tooltip and container backgrounds render on same layer */
+            isolation: isolate;
+            /* render on its own composite layer for smoother anti-aliasing */
+            transform: translateZ(0);
+        }
+
+        .email-form button:active {
+            transform: translateY(0);
+        }
+
+        .form-note {
+            font-size: 0.85rem;
+            color: #666666;
+            font-weight: 300;
+        }
+
+        /* Glowing horizon effect */
+        .horizon {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 500px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .horizon::before {
+            content: '';
+            position: absolute;
+            /* moved to bottom, keep glow centered above the bottom */
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(150, 180, 255, 0.1) 5%,
+                rgba(150, 180, 255, 0.4) 20%,
+                rgba(150, 180, 255, 0.8) 50%,
+                rgba(150, 180, 255, 0.4) 80%,
+                rgba(150, 180, 255, 0.1) 95%,
+                transparent 100%);
+            box-shadow: 
+                0 0 40px 15px rgba(150, 180, 255, 0.25),
+                0 0 80px 40px rgba(100, 150, 255, 0.15),
+                0 0 120px 60px rgba(100, 150, 255, 0.08);
+            border-radius: 50%;
+            z-index: 2; /* ensure the line sits above the radial 'ground' glow */
+        }
+
+        .horizon::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 250px;
+            background: radial-gradient(ellipse 800px 400px at center bottom,
+                rgba(120, 160, 255, 0.2) 0%,
+                rgba(100, 150, 255, 0.1) 20%,
+                rgba(80, 130, 255, 0.05) 40%,
+                transparent 70%);
+            border-radius: 50% 50% 0 0;
+            z-index: 1; /* sits below the line */
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+                /* reduce the badge spacing on smaller screens as well */
+                .hero-badge { margin-bottom: 0.75rem; }
+
+            .email-form {
+                flex-direction: column;
+            }
+
+            .email-form input,
+            .email-form button,
+                .email-form .tooltip-container {
+                width: 100%;
+            }
+        }
+
+        /* Stars/particles effect (optional) */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+    </style>
+    <!-- Normalize /index.html -> / or /home using a small early redirect script -->
+    <script>
+        (function() {
+            try {
+                const meta = document.querySelector('meta[name="home-path"]');
+                const HOME = (meta && meta.getAttribute('content')) || '/';
+                const path = window.location.pathname || '/';
+                // If URL contains '/index.html' at the end, redirect to desired HOME or folder root
+                if (/index\.html$/.test(path)) {
+                    // Remove trailing 'index.html' portion
+                    const folder = path.replace(/index\.html$/, '');
+                    // If HOME is '/', prefer the folder root, else use the HOME value
+                    const target = HOME === '/' ? (folder || '/') : HOME;
+                    const search = window.location.search || '';
+                    const hash = window.location.hash || '';
+                    const newUrl = target + search + hash;
+                    if (newUrl !== window.location.pathname + search + hash) {
+                        // Use replace() to avoid creating an extra history entry
+                        window.location.replace(newUrl);
+                    }
+                } else if (path === '/' && meta && meta.getAttribute('content') === '/home') {
+                    // If the site prefers '/home' as canonical, replace location to show '/home' in the URL
+                    const search = window.location.search || '';
+                    const hash = window.location.hash || '';
+                    const newUrl = '/home' + search + hash;
+                    if (newUrl !== window.location.pathname + search + hash) {
+                        history.replaceState({}, '', newUrl);
+                    }
+                }
+            } catch (e) {
+                // graceful fallback - if anything goes wrong, keep existing URL
+                console.warn('Canonical redirect check failed', e);
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Page loader overlay -->
+    <div id="siteLoader" class="loader-overlay" role="status" aria-live="polite" aria-label="Loading">
+        <!-- From Uiverse.io by dexter-st -->
+        <div class="loader-wrapper">
+            <span class="loader-letter">G</span>
+            <span class="loader-letter">e</span>
+            <span class="loader-letter">n</span>
+            <span class="loader-letter">e</span>
+            <span class="loader-letter">r</span>
+            <span class="loader-letter">a</span>
+            <span class="loader-letter">t</span>
+            <span class="loader-letter">i</span>
+            <span class="loader-letter">n</span>
+            <span class="loader-letter">g</span>
+
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <div class="stars" id="starsContainer"></div>
+    
+    <div class="hero">
+
+        <div class="hero-badge">Syntrex ✦ Coming Soon</div>
+        
+        <h1>Children deserve<br>the most <span class="italic">protection.</span></h1>
+        
+        <p>Will you take part into protecting them?</p>
+        
+        <div class="email-form">
+            <!-- Input removed by design; a centered tooltip-styled box remains. Click/submission disabled. -->
+            <div class="tooltip-container" aria-label="Get Notified">
+                <span class="tooltip">Hey There!</span>
+                <span class="text">Coming Soon...</span>
+            </div>
+        </div>
+        
+        <!-- Removed the 'working as you read' text per design — tooltip-only button is center of attention -->
+    </div>
+
+    <div class="horizon"></div>
+    <!-- Floating corner logo (use as site icon / link to home) -->
+    <a class="corner-logo" href="/" aria-label="Go to Syntrex home">
+        <img src="assets/syntrexlabs.png" alt="Syntrex" />
+    </a>
+
+    <script>
+        // Generate random stars
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            const starCount = 80;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.opacity = Math.random() * 0.5 + 0.3;
+                container.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // Handle signup form - supports optional email or prompts when no input is present
+        function handleSignup(event) {
+            event.preventDefault();
+            const inputEl = event.target.querySelector('input[type="email"]');
+            let email = '';
+            if (inputEl && inputEl.value) {
+                email = inputEl.value.trim();
+            } else {
+                // Optional: prompt for email when no input is present
+                try {
+                    const entered = window.prompt('Enter your email to be notified (optional):');
+                    if (entered && typeof entered === 'string') email = entered.trim();
+                } catch (e) {
+                    // Do nothing — prompt might be blocked
+                }
+            }
+
+            if (email) {
+                alert(`Thank you! We'll notify you at ${email} when Syntrex launches.`);
+            } else {
+                alert(`Thank you! We'll notify you when Syntrex launches.`);
+            }
+
+            if (inputEl) event.target.reset();
+        }
+
+        // Smooth page load: fade in page and hide loader overlay
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '1';
+
+            const loader = document.getElementById('siteLoader');
+            if (loader) {
+                // Give a tiny delay so animation is visible
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                }, 300);
+
+                // Remove from DOM once hidden to avoid pointer interception
+                loader.addEventListener('transitionend', () => {
+                    try { loader.remove(); } catch (e) { /* no-op */ }
+                }, { once: true });
+            }
+        });
+    </script>
+</body>
+</html>
