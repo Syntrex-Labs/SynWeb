@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About Syntrex - Tools for parents to keep children safe on the internet.">
+    <meta name="theme-color" content="#000000">
+    <meta name="home-path" content="/">
+    <meta name="github-user" content="">
+    <meta name="github-repo" content="">
+    <link rel="preload" href="kewlfont.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="icon" href="syntrexlabs.png" type="image/png">
+    <link rel="apple-touch-icon" href="syntrexlabs.png">
+    <title>About Syntrex - Child Internet Safety Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @font-face {
+            font-family: 'KewlFont';
+            src: url('kewlfont.woff2') format('woff2'),
+                 url('kewlfont.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            color: #ffffff;
+            font-family: 'KewlFont', 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+        }
+
+        .nav {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1000;
+        }
+
+        .nav a {
+            color: #a0a0a0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+        }
+
+        .nav a:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .content {
+            text-align: center;
+            max-width: 700px;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .intro-logo {
+            display: block;
+            margin: 0 auto 2rem auto;
+            width: 180px;
+            max-width: 45vw;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 0 30px rgba(150, 180, 255, 0.4),
+                        0 0 60px rgba(120, 160, 255, 0.2),
+                        0 6px 20px rgba(0, 0, 0, 0.35);
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% {
+                box-shadow: 0 0 30px rgba(150, 180, 255, 0.4),
+                            0 0 60px rgba(120, 160, 255, 0.2),
+                            0 6px 20px rgba(0, 0, 0, 0.35);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(150, 180, 255, 0.6),
+                            0 0 80px rgba(120, 160, 255, 0.35),
+                            0 6px 20px rgba(0, 0, 0, 0.35);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content h1 {
+            font-family: 'KewlFont', 'Playfair Display', Georgia, 'Times New Roman', serif;
+            font-size: clamp(2.5rem, 10vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+        }
+
+        .content p {
+            font-size: 1.05rem;
+            color: #888888;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            letter-spacing: 0.2px;
+        }
+
+        .content a {
+            color: #7579e7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .content a:hover {
+            color: #8fa3ff;
+            text-decoration: underline;
+        }
+
+        .corner-logo {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1000;
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .corner-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .corner-logo:hover {
+            transform: scale(1.04);
+            opacity: 0.98;
+        }
+
+        .horizon {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 500px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .horizon::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%,
+                rgba(150, 180, 255, 0.1) 5%,
+                rgba(150, 180, 255, 0.4) 20%,
+                rgba(150, 180, 255, 0.8) 50%,
+                rgba(150, 180, 255, 0.4) 80%,
+                rgba(150, 180, 255, 0.1) 95%,
+                transparent 100%);
+            box-shadow: 
+                0 0 40px 15px rgba(150, 180, 255, 0.25),
+                0 0 80px 40px rgba(100, 150, 255, 0.15),
+                0 0 120px 60px rgba(100, 150, 255, 0.08);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .horizon::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 250px;
+            background: radial-gradient(ellipse 800px 400px at center bottom,
+                rgba(120, 160, 255, 0.2) 0%,
+                rgba(100, 150, 255, 0.1) 20%,
+                rgba(80, 130, 255, 0.05) 40%,
+                transparent 70%);
+            border-radius: 50% 50% 0 0;
+            z-index: 1;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        @media (max-width: 600px) {
+            .content h1 {
+                font-size: 2rem;
+            }
+
+            .content p {
+                font-size: 0.95rem;
+            }
+
+            .corner-logo {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="starsContainer"></div>
+
+    <nav class="nav">
+        <a href="/">Home</a>
+    </nav>
+
+    <div class="content">
+        <img src="syntrexlabs.png" alt="Syntrex Logo" class="intro-logo">
+        
+        <h1>About Syntrex</h1>
+        <p>Syntrex is dedicated to creating tools that empower parents to keep their children safe on the internet.</p>
+        <p>In a digital world where children are growing up online, we believe parents deserve intuitive, effective solutions to monitor and guide their digital journey.</p>
+        <p>Our mission is to provide tools for parents that have limited knowledge of technology and help them expand with their knowledge with tools that we create.</p>
+        <p>Learn more by visiting our <a href="/">homepage</a>.</p>
+    </div>
+
+    <div class="horizon"></div>
+
+    <!-- Floating corner logo -->
+    <a class="corner-logo" href="/" aria-label="Go to Syntrex home">
+        <img src="syntrexlabs.png" alt="Syntrex Logo">
+    </a>
+
+    <script>
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            const starCount = 80;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.opacity = Math.random() * 0.5 + 0.3;
+                container.appendChild(star);
+            }
+        }
+        createStars();
+    </script>
+</body>
+</html>

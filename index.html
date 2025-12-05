@@ -13,13 +13,13 @@
         <meta name="github-user" content="">
         <meta name="github-repo" content="">
         <!-- Recommend preloading local font to help early rendering -->
-        <link rel="preload" href="fonts/kewlfont.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="kewlfont.woff2" as="font" type="font/woff2" crossorigin>
         <!-- Favicon & Touch icon for devices -->
-        <link rel="icon" href="Assets/SyntrexLabs.png" type="image/png">
-        <link rel="apple-touch-icon" href="Assets/SyntrexLabs.png">
+        <link rel="icon" href="syntrexlogo.png" type="image/png">
+        <link rel="apple-touch-icon" href="syntrexlogo.png">
     <title>Syntrex - Child Internet Safety Tools</title>
         <!-- NOTE: Using a local custom font instead of Google Fonts: kewlfont.ttf
-            Place your real kewlfont.ttf into the `fonts/` folder. See fonts/README.md
+            Place your real kewlfont.ttf in the root folder. See README.md
         -->
     <style>
         * {
@@ -134,8 +134,8 @@
         /* Use the custom font as the default. Ensure kewlfont.ttf is in /fonts/ */
         @font-face {
             font-family: 'KewlFont';
-            src: url('fonts/kewlfont.woff2') format('woff2'),
-                 url('fonts/kewlfont.ttf') format('truetype');
+            src: url('kewlfont.woff2') format('woff2'),
+                 url('kewlfont.ttf') format('truetype');
             font-weight: 100 900;
             font-style: normal;
             font-display: swap;
@@ -206,6 +206,35 @@
             border-radius: 12px;
             object-fit: contain;
             box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+
+        /* Top navigation */
+        .top-nav {
+            position: fixed;
+            top: 20px;
+            left: 26px;
+            z-index: 1000;
+        }
+
+        .top-nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            padding: 0.6rem 1.2rem;
+            background: rgba(117, 121, 231, 0.15);
+            border: 1px solid rgba(117, 121, 231, 0.4);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .top-nav a:hover {
+            background: rgba(117, 121, 231, 0.3);
+            border-color: rgba(117, 121, 231, 0.7);
+            box-shadow: 0 0 15px rgba(117, 121, 231, 0.3);
+            transform: translateY(-2px);
         }
 
         /* Floating corner logo */
@@ -623,8 +652,12 @@
 
     <div class="stars" id="starsContainer"></div>
     
+    <!-- Navigation links -->
+    <nav class="top-nav">
+        <a href="/about">About Us</a>
+    </nav>
+    
     <div class="hero">
-
         <div class="hero-badge">Syntrex ✦ Coming Soon</div>
         
         <h1>Children deserve<br>the most <span class="italic">protection.</span></h1>
@@ -645,7 +678,7 @@
     <div class="horizon"></div>
     <!-- Floating corner logo (use as site icon / link to home) -->
     <a class="corner-logo" href="/" aria-label="Go to Syntrex home">
-        <img src="Assets/SyntrexLabs.png" alt="Syntrex" />
+        <img src="syntrexlabs.png" alt="Syntrex Logo">
     </a>
 
     <script>
@@ -713,9 +746,9 @@
         // Diagnostics: quickly check that important assets are reachable (helpful for GitHub Pages path issues)
         (function checkAssets() {
             const toCheck = [
-                'Assets/SyntrexLabs.png',
-                'fonts/kewlfont.ttf',
-                'fonts/kewlfont.woff2'
+                'syntrexlabs.png',
+                'kewlfont.ttf',
+                'kewlfont.woff2'
             ];
 
             async function headCheck(url) {
@@ -776,7 +809,7 @@
         })();
 
         async function tryCdnFallback(user, repo, path) {
-            // path is like 'Assets/SyntrexLabs.png' or 'fonts/kewlfont.ttf'
+            // path is like 'assets/syntrexlabs.png' or 'fonts/kewlfont.ttf'
             const cdn = `https://cdn.jsdelivr.net/gh/${user}/${repo}@latest/${path}`;
             try {
                 const res = await fetch(cdn, { method: 'GET' });
@@ -810,12 +843,10 @@
         (function ensureFontAvailable() {
             const fontName = 'kewlfont';
             const candidates = [
-                `fonts/${fontName}.woff2`,
-                `fonts/${fontName}.ttf`,
-                `assets/fonts/${fontName}.woff2`,
-                `assets/fonts/${fontName}.ttf`,
-                `./fonts/${fontName}.woff2`,
-                `./assets/fonts/${fontName}.woff2`,
+                fontName + '.woff2',
+                fontName + '.ttf',
+                './' + fontName + '.woff2',
+                './' + fontName + '.ttf',
             ];
 
             async function testAndApply(url) {
@@ -846,4 +877,3 @@
     </script>
 </body>
 </html>
-
